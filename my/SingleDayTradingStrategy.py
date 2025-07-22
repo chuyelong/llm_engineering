@@ -11,6 +11,8 @@ class SingleDayTradingStrategy:
         self.exception_bars = []
     
     def _open_position(self, position, price, now):
+        if self.position == -position:
+            self._close_position(price, now)
         self.position = position
         self.entry = {'time': now, 'price': price}
 
@@ -58,14 +60,12 @@ class SingleDayTradingStrategy:
                 self.exception_bars.append(row)
                 continue
 
-            elif rowHigh > highN:
+            elif rowHigh > highN and self.position <= 0:
                 price = highN
-                self._close_position(price, now)
                 self._open_position(1, price, now)
 
-            elif rowLow < lowN:
+            elif rowLow < lowN and self.position >= 0:
                 price = lowN
-                self._close_position(price, now)
                 self._open_position(-1, price, now)
 
             if self.position != 0 and self.entry:
